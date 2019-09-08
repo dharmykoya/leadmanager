@@ -1,33 +1,71 @@
 import axios from 'axios';
-
-import { GET_LEADS, DELETE_LEAD, ADD_LEAD } from './types';
+import { createMessage } from './messages';
+import { GET_LEADS, DELETE_LEAD, ADD_LEAD, GET_ERRORS } from './types';
 
 //GET_LEADS
 export const getLeads = () => dispatch => {
-  axios.get('/api/leads/').then(res => {
-    dispatch({
-      type: GET_LEADS,
-      payload: res.data
-    }).catch(error => console.log(12, error));
-  });
+  axios
+    .get('/api/leads/')
+    .then(res => {
+      dispatch({
+        type: GET_LEADS,
+        payload: res.data
+      });
+    })
+    .catch(error => {
+      const errors = {
+        msg: error.response.data,
+        status: error.response.status
+      };
+      dispatch({
+        type: GET_ERRORS,
+        payload: errors
+      });
+    });
 };
 
 //DELETE LEAD
 export const deleteLead = id => dispatch => {
-  axios.delete(`/api/leads/${id}/`).then(res => {
-    dispatch({
-      type: DELETE_LEAD,
-      payload: id
-    }).catch(error => console.log(12, error));
-  });
+  axios
+    .delete(`/api/leads/${id}/`)
+    .then(res => {
+      dispatch(createMessage({ leadDeleted: 'Lead Deleted' }));
+      dispatch({
+        type: DELETE_LEAD,
+        payload: id
+      });
+    })
+    .catch(error => {
+      const errors = {
+        msg: error.response.data,
+        status: error.response.status
+      };
+      dispatch({
+        type: GET_ERRORS,
+        payload: errors
+      });
+    });
 };
 
 //ADD LEAD
 export const addLead = lead => dispatch => {
-  axios.post('/api/leads/', lead).then(res => {
-    dispatch({
-      type: ADD_LEAD,
-      payload: res.data
-    }).catch(error => console.log(12, error));
-  });
+  axios
+    .post('/api/leads/', lead)
+    .then(res => {
+      dispatch(createMessage({ leadAdded: 'Lead Added' }));
+      dispatch({
+        type: ADD_LEAD,
+        payload: res.data
+      });
+    })
+    .catch(error => {
+      const errors = {
+        msg: error.response.data,
+        status: error.response.status
+      };
+      dispatch({
+        type: GET_ERRORS,
+        payload: errors
+      });
+    });
 };
